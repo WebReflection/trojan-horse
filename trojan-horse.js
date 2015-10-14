@@ -90,7 +90,6 @@ function normalize(fn) {
 }
 
 function trojanHorse(request, response, next) {
-  var uid, data, resolve, reject;
   if (~request.url.indexOf('/.trojan-horse')) {
     if (request.url === '/.trojan-horse.js') {
       response.writeHead(200, 'OK', {'Content-Type': 'application/javascript'});
@@ -98,11 +97,9 @@ function trojanHorse(request, response, next) {
       return true;
     } else if (
       request.url === '/.trojan-horse' &&
-      request.method === 'POST' &&
-      ('x-trojan-horse' in request.headers)
+      request.method === 'POST'
     ) {
-      data = '';
-      uid = request.headers['x-trojan-horse'];
+      var data = '';
       request.on('data', function (chunk) {
         data += chunk;
         if (data.length > 1e7) {
@@ -111,7 +108,11 @@ function trojanHorse(request, response, next) {
         }
       });
       request.on('end', function() {
-        var sb, info = qs.parse(data);
+        var
+          sb, resolve, reject,
+          info = qs.parse(data),
+          uid = info.uid
+        ;
         if (info.action === 'drop') {
           if (!uid) return error(response, 403);
           delete cache[uid];
@@ -220,10 +221,9 @@ function TrojanHorse(credentials) {'use strict';
     createXHR = function (data) {
       var xhr = new XMLHttpRequest;
       xhr.open.apply(xhr, xhrArgs);
-      xhr.setRequestHeader('X-Trojan-Horse', uid);
       xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.send(data);
+      xhr.send(data + '&uid=' + uid);
       return xhr;
     },
     parse = function (xhr) {
