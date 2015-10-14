@@ -15,10 +15,10 @@ Using `trojanHorse` as `express` middle layer or any generic node `req, res` han
 var trojanHorse = require('./trojan-horse');
 require("http")
   .createServer(function (request,  response) {
-    // in case this is not a trojan-horse request
-    if (!trojanHorse(request,  response)) {
-      // we can simply do whatever we ussually do here
-    }
+    // in case this is a trojan-horse request GTFO
+    if (trojanHorse(request,  response)) return;
+    // in every other case we can simply do
+    // whatever we usually do with requests
   })
   .listen(1337)
 ;
