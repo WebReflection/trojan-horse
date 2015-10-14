@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<script src="/.trojan-horse.js">/* grab the constructor */</script>
+<script>
+this.onload = function  () {
+  // create a new instance
+  var th = new TrojanHorse();
+
+  // per each second
+  setInterval((function getOSInfo() {
+    // execute something on the server
+    th.exec(function () {
+        // bear in mind none of this can access the outer scope
+        // on the client side. It's executed on the server
+        var
+          gotIP,
+          os = require('os'),
+          ifaces = require('os').networkInterfaces()
+        ;
+        Object.keys(ifaces).some(
+          function (k) { return (gotIP = ifaces[k].filter(this)[0]); },
+          function (info) { return !info.internal && info.family === 'IPv4'; }
+        );
+        // resolve the request
+        // every call has resolve and reject functions available
+        resolve({
+          loadavg: os.loadavg(),
+          uptime: os.uptime(),
+          freemem: os.freemem(),
+          totalmem: os.totalmem(),
+          cpus: os.cpus(),
+          release: os.release(),
+          arch: os.arch(),
+          platform: os.platform(),
+          hostname: os.hostname(),
+          ip: gotIP ? gotIP.address : 'unknown'
+        });
+      })
+      // once resolved, do something with the unserialized result
+      .then(function (result) {
+        var table = document.createElement('table');
+        Object.keys(result).forEach(
+          function (key) {
+            var
+              tr = this.appendChild(document.createElement('tr')),
+              info = result[key]
+            ;
+            tr.appendChild(document.createElement('td')).textContent = key;
+            if (Array.isArray(info)) {
+              info.forEach(function (info, i) {
+                var str = key === 'cpus' ? info.model : JSON.stringify(info);
+                if (i) {
+                  tr = this.appendChild(document.createElement('tr'));
+                  tr.appendChild(document.createElement('td'));
+                  tr.appendChild(document.createElement('td')).textContent = str;
+                } else {
+                  tr.appendChild(document.createElement('td')).textContent = str;
+                }
+              }, this);
+            } else {
+              tr.appendChild(document.createElement('td')).textContent = info;
+            }
+          },
+          table.appendChild(document.createElement('tbody'))
+        );
+        if (document.body.firstChild)
+          document.body.replaceChild(table, document.body.firstChild);
+        else
+          document.body.appendChild(table);
+      });
+    return getOSInfo;
+  }()), 2500);
+
+  // it is also possible to have a persistent sandbox/env
+  // each time what was there before will be still there
+  (new TrojanHorse).createEnv().then(function (th) {
+    function serverCommand() {
+      if (!global.i) i = 0;
+      resolve(++i);
+    }
+    function clientUpdate(i) {
+      document.title = i + ' increments';
+      if (i === 5) {
+        clearInterval(timer);
+        // it is also possible to free an env
+        th.dropEnv();
+      }
+    }
+    var timer = setInterval(function () {
+      th.exec(serverCommand).then(clientUpdate);
+    }, 1000);
+  });
+
+};
+</script>
