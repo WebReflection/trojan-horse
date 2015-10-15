@@ -93,7 +93,10 @@ function trojanHorse(request, response, next) {
   if (~request.url.indexOf('/.trojan-horse')) {
     if (request.url === '/.trojan-horse.js') {
       response.writeHead(200, 'OK', {'Content-Type': 'application/javascript'});
-      response.end('' + TrojanHorse);
+      response.end([
+        TrojanHorse,
+        'TrojanHorse.Promise = window.Promise || ' + TrojanHorsePromise + ';'
+      ].join('\n'));
       return true;
     } else if (
       request.url === '/.trojan-horse' &&
@@ -228,7 +231,8 @@ function TrojanHorse(credentials) {'use strict';
     },
     parse = function (xhr) {
       return JSON.parse(xhr.responseText);
-    }
+    },
+    Promise = TrojanHorse.Promise
   ;
   this.exec = function exec(args, callback) {
     var
@@ -264,6 +268,27 @@ function TrojanHorse(credentials) {'use strict';
   this.dropEnv = function dropEnv() {
     createXHR('action=drop');
     uid = '';
-    return Promise.resolve(this);
+  };
+}
+
+// [WARNING]  this is a fallback for old QTWebKit and specific
+//            to make basic trojan-horse actions work.
+//            this is NOT a spec compliant Promise polyfill.
+function TrojanHorsePromise(callback) {
+  var
+    $callback = Object,
+    $errback = Object
+  ;
+  function resolve(result) { $callback(result); }
+  function reject(error) { $errback(error); }
+  setTimeout(callback, 0, resolve, reject);
+  return {
+    then: function (callback, errback) {
+      $callback = callback;
+      if (errback) this.catch(errback);
+    },
+    catch: function (errback) {
+      $errback = errback;
+    }
   };
 }

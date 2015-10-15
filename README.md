@@ -42,9 +42,12 @@ th.exec(function () {
 </script>
 ```
 
+### Localhost Security
+If you make your service reachable through `localhost` only, using `127.0.0.1` as IP address, your computer should be the only one capable of reaching such page. In this case there's no need to play too much with nounces.
+
 
 ### Allowing execution via nonces
-Unless the running server is not reachable from external browsers and unless we are in a very secure and trusted environment, it is really not recommended to accept any sort of function execution in the wild.
+If the server is not reachable through localhost only or it cannot trust the environment, it is really not recommended to accept any sort of function execution in the wild.
 
 In order to allow only well known functions, it is possible to define one or more `nonces` which are a `sha256` representation of cleaned up functions.
 
