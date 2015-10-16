@@ -54,7 +54,8 @@ function createSandbox() {
       uptime: process.uptime,
       memoryUsage: process.memoryUsage,
       binding: process.binding,
-      nextTick: process.nextTick
+      nextTick: process.nextTick,
+      env: process.env
     },
     Buffer: Buffer,
     setTimeout: setTimeout,

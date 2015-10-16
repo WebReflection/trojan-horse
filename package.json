@@ -1,6 +1,6 @@
 {
   "name": "trojan-horse",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Execute nodejs through the browser (what could possibly go wrong)",
   "main": "trojan-horse.js",
   "scripts": {
