@@ -43,20 +43,7 @@ function createNonce(fn) {
 
 function createSandbox() {
   var sandBox = {
-    process: {
-      title: process.title,
-      version: process.version,
-      moduleLoadList: process.moduleLoadList,
-      versions: process.versions,
-      arch: process.arch,
-      platform: process.platform,
-      hrtime: process.hrtime,
-      uptime: process.uptime,
-      memoryUsage: process.memoryUsage,
-      binding: process.binding,
-      nextTick: process.nextTick,
-      env: process.env
-    },
+    process: process,
     Buffer: Buffer,
     setTimeout: setTimeout,
     setInterval: setInterval,
