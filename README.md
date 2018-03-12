@@ -1,6 +1,11 @@
 # trojan-horse
 Execute nodejs through the browser (what could possibly go wrong)
 
+## new alternative
+Please consider [node-worker](https://github.com/WebReflection/node-worker#node-worker) as alternative to this project:
+
+  * no evaluation
+  * Web standard based/like interaction
 
 #### WARNING
 If used improperly this module can give access to every sort of malicious code.
